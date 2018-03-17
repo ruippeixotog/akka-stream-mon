@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.duration.FiniteDuration
 
 import akka.stream._
-import akka.stream.contrib.Pulse
-import akka.stream.scaladsl.{ Flow, GraphDSL, Keep, Sink }
-import akka.stream.stage.{ GraphStage, GraphStageLogic, InHandler, OutHandler }
+import akka.stream.scaladsl._
+import akka.stream.stage._
+
 import net.ruippeixotog.streammon.LatencyMonitor.{ Stats, TimerContext }
 
 class LatencyMonitor[A](ctx: TimerContext) extends GraphStage[FanOutShape2[A, A, Stats]] {

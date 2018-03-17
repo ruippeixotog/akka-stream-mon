@@ -4,9 +4,9 @@ import scala.concurrent.duration.FiniteDuration
 
 import akka.NotUsed
 import akka.stream._
-import akka.stream.contrib.Pulse
-import akka.stream.scaladsl.{ Flow, GraphDSL, Sink }
-import akka.stream.stage.{ GraphStage, GraphStageLogic, InHandler, OutHandler }
+import akka.stream.scaladsl._
+import akka.stream.stage._
+
 import net.ruippeixotog.streammon.ThroughputMonitor.Stats
 
 class ThroughputMonitor[A] extends GraphStage[FanOutShape2[A, A, Stats]] {
