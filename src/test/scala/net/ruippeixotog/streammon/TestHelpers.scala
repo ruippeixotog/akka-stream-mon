@@ -12,7 +12,7 @@ import org.specs2.mutable.SpecificationLike
 
 trait TestHelpers extends SpecificationLike {
 
-  class DelaySync[A](of: FiniteDuration) extends GraphStage[FlowShape[A, A]] {
+  private[this] class DelaySync[A](of: FiniteDuration) extends GraphStage[FlowShape[A, A]] {
     val in = Inlet[A]("DelaySync.in")
     val out = Outlet[A]("DelaySync.out")
     val shape = FlowShape.of(in, out)
@@ -38,8 +38,19 @@ trait TestHelpers extends SpecificationLike {
     }
   }
 
-  def delaySync(of: FiniteDuration): Flow[Int, Int, NotUsed] =
-    Flow.fromGraph(new DelaySync[Int](of))
+  implicit class SourceTestOps[A, B, Mat](src: Source[A, Mat]) {
+    def delaySync(of: FiniteDuration): Source[A, Mat] =
+      src.via(new DelaySync(of))
+
+    def takeDuring(limit: FiniteDuration, endElem: A): Source[A, Mat] =
+      src.merge(Source.tick(limit, limit, endElem)).takeWhile(_ != endElem)
+  }
+
+  def delaySync[A](of: FiniteDuration): Flow[A, A, NotUsed] =
+    Flow.fromGraph(new DelaySync(of))
+
+  def pulse[A](interval: FiniteDuration): Flow[A, A, NotUsed] =
+    Flow[A].zipWith(Source.tick(interval, interval, ()))(Keep.left)
 
   def runFlowMonitor(
     slowSource: Option[FiniteDuration],
@@ -47,16 +58,15 @@ trait TestHelpers extends SpecificationLike {
 
     val src: Source[Int, _] = slowSource match {
       case None => Source.repeat(0)
-      case Some(of) => Source.repeat(0).via(delaySync(of))
+      case Some(of) => Source.repeat(0).delaySync(of)
     }
     val sink: Sink[Int, Future[Done]] = slowSink match {
       case None => Sink.ignore
-      case Some(of) => Flow[Int].via(delaySync(of)).toMat(Sink.ignore)(Keep.right)
+      case Some(of) => delaySync(of).toMat(Sink.ignore)(Keep.right)
     }
 
     val fut = src
-      .merge(Source.tick(10.seconds, 10.seconds, -1))
-      .takeWhile(_ != -1)
+      .takeDuring(10.seconds, -1)
       .via(block)
       .runWith(sink)
 

@@ -77,7 +77,7 @@ object ThroughputMonitor {
    * @tparam A the type of the elements passing through this stage
    * @return a `ThroughputMonitor` stage.
    */
-  def apply[A]: Graph[FanOutShape2[A, A, Stats], NotUsed] =
+  def apply[A]: ThroughputMonitor[A] =
     new ThroughputMonitor[A]
 
   /**
