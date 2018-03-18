@@ -1,4 +1,4 @@
-# akka-stream-mon [![Build Status](https://travis-ci.org/ruippeixotog/akka-stream-mon.svg?branch=master)](https://travis-ci.org/ruippeixotog/akka-stream-mon)
+# akka-stream-mon [![Build Status](https://travis-ci.org/ruippeixotog/akka-stream-mon.svg?branch=master)](https://travis-ci.org/ruippeixotog/akka-stream-mon) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.ruippeixotog/akka-stream-mon_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.ruippeixotog/akka-stream-mon_2.12)
 
 A small library containing graph stages to measure the latency and throughput of Akka Streams.
 
