@@ -1,4 +1,8 @@
+import ReleaseTransformations._
 import scalariform.formatter.preferences._
+
+name := "akka-stream-mon"
+organization := "net.ruippeixotog"
 
 scalaVersion := "2.12.4"
 
@@ -11,11 +15,7 @@ scalariformPreferences := scalariformPreferences.value
   .setPreference(DanglingCloseParenthesis, Prevent)
   .setPreference(DoubleIndentConstructorArguments, true)
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+publishTo := sonatypePublishTo.value
 
 licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.php"))
 homepage := Some(url("https://github.com/ruippeixotog/scala-scraper"))
@@ -26,6 +26,19 @@ scmInfo := Some(ScmInfo(
 developers := List(
   Developer("ruippeixotog", "Rui Gonçalves", "ruippeixotog@gmail.com", url("http://www.ruippeixotog.net")))
 
-releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseTagComment := s"Release ${(version in ThisBuild).value}"
 releaseCommitMessage := s"Set version to ${(version in ThisBuild).value}"
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommandAndRemaining("sonatypeReleaseAll"),
+  pushChanges)
